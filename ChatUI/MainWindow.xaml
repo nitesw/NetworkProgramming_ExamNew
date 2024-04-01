@@ -23,7 +23,7 @@
                Grid.Column="0"
                Content="Username:"
                Margin="0"
-               FontSize="22"
+               FontSize="20"
                FontWeight="Bold"
                VerticalContentAlignment="Center"/>
         <Label x:Name="PasswordLabel"
@@ -31,7 +31,7 @@
                Grid.Column="0"
                Content="Password:"
                Margin="0"
-               FontSize="22"
+               FontSize="20"
                FontWeight="Bold"
                VerticalContentAlignment="Center"/>
         <TextBox x:Name="UsernameTextBox"
@@ -40,7 +40,7 @@
                  Grid.ColumnSpan="3"
                  Height="22"
                  Margin="10,0,20,0"/>
-        <PasswordBox x:Name="PasswordBox"
+        <PasswordBox x:Name="PassPasswordBox"
                      Grid.Row="1"
                      Grid.Column="1"
                      Grid.ColumnSpan="3"

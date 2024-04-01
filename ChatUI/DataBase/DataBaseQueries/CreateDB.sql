@@ -1,0 +1,44 @@
+CREATE DATABASE [ChatDB]
+GO
+
+USE [ChatDB]
+GO
+
+CREATE TABLE [Users]
+(
+Id INT PRIMARY KEY NOT NULL IDENTITY(1, 1),
+[Username] NVARCHAR(128) NOT NULL UNIQUE CHECK([Username] <> ''),
+[Password] NVARCHAR(64) NOT NULL CHECK([Password] <> ''),
+[AccountCreationTime] DATETIME NOT NULL DEFAULT GETDATE(),
+[CountMessages] INT NOT NULL DEFAULT 0,
+[IsAdmin] BIT NOT NULL DEFAULT 0
+);
+GO
+
+CREATE TABLE [Messages]
+(
+Id INT PRIMARY KEY NOT NULL IDENTITY(1, 1),
+[UserId] INT NOT NULL,
+FOREIGN KEY ([UserId]) REFERENCES [Users](Id),
+[SendTime] DATETIME NOT NULL DEFAULT GETDATE(),
+[Text] NVARCHAR(MAX) NOT NULL
+);
+GO
+
+CREATE TABLE [Logs]
+(
+Id INT PRIMARY KEY NOT NULL IDENTITY(1, 1),
+[UserId] INT NOT NULL,
+FOREIGN KEY ([UserId]) REFERENCES [Users](Id),
+[IPv4Address] NVARCHAR(16) NOT NULL,
+[ConnectionTime] DATETIME NOT NULL DEFAULT GETDATE(),
+[DisconnectionTime] DATETIME NOT NULL 
+);
+GO
+
+INSERT INTO [Users] ([Username], [Password], [IsAdmin])
+VALUES
+('admin', 'admin123', 1),
+('Bob', 'bobby331', 0),
+('JakeBoss', 'qwerty000', 0)
+GO

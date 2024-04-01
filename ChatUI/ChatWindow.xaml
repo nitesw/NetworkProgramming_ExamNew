@@ -60,7 +60,8 @@
                     Padding="8"
                     Content="Exit"
                     FontWeight="Bold"
-                    BorderBrush="Black"/>
+                    BorderBrush="Black"
+                    Click="ExitBtnTB_Click"/>
         </ToolBar>
         <ListBox x:Name="MessagesListBox"
                  Grid.Row="1"

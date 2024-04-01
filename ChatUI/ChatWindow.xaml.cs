@@ -29,10 +29,7 @@ namespace NetworkProgramming_ExamNew
         private Socket client = null;
         private void JoinDisconnectBtnTB_Click(object sender, RoutedEventArgs e)
         {
-            Button button = (Button)sender;
-            string buttonContent = button.Content.ToString().Trim();
-
-            if (buttonContent == "Join chat")
+            if (JoinDisconnectBtnTB.Content.ToString() == "Join chat")
             {
                 try
                 {
@@ -42,8 +39,8 @@ namespace NetworkProgramming_ExamNew
                     client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     client.Connect(connectionIp, connectionPort);
 
-                    button.Content = "Leave chat";
-                    button.Background = Brushes.OrangeRed;
+                    JoinDisconnectBtnTB.Content = "Leave chat";
+                    JoinDisconnectBtnTB.Background = Brushes.OrangeRed;
 
 
                 }
@@ -52,13 +49,13 @@ namespace NetworkProgramming_ExamNew
                     MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            else if (buttonContent == "Leave chat")
+            else if (JoinDisconnectBtnTB.Content.ToString() == "Leave chat")
             {
                 client?.Close();
                 client = null;
 
-                button.Content = "Join chat";
-                button.Background = Brushes.LightGreen;
+                JoinDisconnectBtnTB.Content = "Join chat";
+                JoinDisconnectBtnTB.Background = Brushes.LightGreen;
             }
         }
 
@@ -79,6 +76,24 @@ namespace NetworkProgramming_ExamNew
             {
                 textBox.Text = "";
                 textBox.Foreground = Brushes.Black;
+            }
+        }
+
+        private void ExitBtnTB_Click(object sender, RoutedEventArgs e)
+        {
+            if (JoinDisconnectBtnTB.Content.ToString() == "Leave chat")
+            {
+                client?.Close();
+                client = null;
+
+                JoinDisconnectBtnTB.Content = "Join chat";
+                JoinDisconnectBtnTB.Background = Brushes.LightGreen;
+
+                this.Close();
+            }
+            else
+            {
+                this.Close();
             }
         }
     }
