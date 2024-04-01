@@ -21,23 +21,29 @@ namespace NetworkProgramming_ExamNew
     /// </summary>
     public partial class ChatWindow : Window
     {
+        private string remoteIP = "192.168.1.104";
+        private short remotePort = 8080;
+
+        IPEndPoint remoteEndPoint;
+        UdpClient client = new UdpClient();
+
+        private bool isListening = false;
+
         public ChatWindow()
         {
             InitializeComponent();
+
+            remoteEndPoint = new IPEndPoint(IPAddress.Parse(remoteIP), remotePort);
         }
 
-        private Socket client = null;
+
         private void JoinDisconnectBtnTB_Click(object sender, RoutedEventArgs e)
         {
             if (JoinDisconnectBtnTB.Content.ToString() == "Join chat")
             {
                 try
                 {
-                    IPAddress connectionIp = IPAddress.Parse("192.168.1.104");
-                    int connectionPort = 8080;
-
-                    client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                    client.Connect(connectionIp, connectionPort);
+                    
 
                     JoinDisconnectBtnTB.Content = "Leave chat";
                     JoinDisconnectBtnTB.Background = Brushes.OrangeRed;
