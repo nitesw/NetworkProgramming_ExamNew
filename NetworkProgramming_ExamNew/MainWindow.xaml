@@ -1,0 +1,72 @@
+﻿<Window x:Class="NetworkProgramming_ExamNew.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NetworkProgramming_ExamNew"
+        mc:Ignorable="d"
+        Title="Login" MinHeight="225" MaxHeight="225" MinWidth="475" MaxWidth="475">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Label x:Name="UsernameLabel"
+               Grid.Row="0"
+               Grid.Column="0"
+               Content="Username:"
+               Margin="0"
+               FontSize="22"
+               FontWeight="Bold"
+               VerticalContentAlignment="Center"/>
+        <Label x:Name="PasswordLabel"
+               Grid.Row="1"
+               Grid.Column="0"
+               Content="Password:"
+               Margin="0"
+               FontSize="22"
+               FontWeight="Bold"
+               VerticalContentAlignment="Center"/>
+        <TextBox x:Name="UsernameTextBox"
+                 Grid.Row="0"
+                 Grid.Column="1"
+                 Grid.ColumnSpan="3"
+                 Height="22"
+                 Margin="10,0,20,0"/>
+        <PasswordBox x:Name="PasswordBox"
+                     Grid.Row="1"
+                     Grid.Column="1"
+                     Grid.ColumnSpan="3"
+                     Height="22"
+                     Margin="10,0,20,0"/>
+        <Button x:Name="LoginButton"
+                Grid.Row="2"
+                Grid.Column="0"
+                Grid.ColumnSpan="2"
+                Content="Sign in"
+                VerticalContentAlignment="Center"
+                FontSize="25"
+                FontWeight="Medium"
+                Width="200"
+                Height="50"
+                Click="LoginButton_Click"/>
+        <Button x:Name="RegisterButton"
+                Grid.Row="2"
+                Grid.Column="2"
+                Grid.ColumnSpan="2"
+                Content="Sign up"
+                VerticalContentAlignment="Center"
+                FontSize="25"
+                FontWeight="Medium"
+                Width="200"
+                Height="50"
+                Click="RegisterButton_Click"/>
+    </Grid>
+</Window>
