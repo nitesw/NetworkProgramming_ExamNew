@@ -43,6 +43,15 @@ namespace NetworkProgramming_ExamNew
             currentUserId = userId;
             remoteEndPoint = new IPEndPoint(IPAddress.Parse(remoteIP), remotePort);
             UsernameLabel.Content = dataBase.GetUsernameByUserId(userId);
+
+            foreach (var item in dataBase.GetAllChats())
+            {
+                ListBoxItem boxItem = new ListBoxItem();
+                boxItem.Tag = item.Key;
+                boxItem.Content = item.Value;
+
+                ChatsListBox.Items.Add(boxItem);  
+            }
         }
 
         private async void Listen()
@@ -60,7 +69,7 @@ namespace NetworkProgramming_ExamNew
         }
         private void JoinDisconnectBtnTB_Click(object sender, RoutedEventArgs e)
         {
-            if (JoinDisconnectBtnTB.Content.ToString() == "Join chat")
+            if (JoinDisconnectBtnTB.Content.ToString() == "Connect")
             {
                 try
                 {
@@ -70,7 +79,7 @@ namespace NetworkProgramming_ExamNew
 
                     dataBase.InsertLogs(currentUserId, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
-                    JoinDisconnectBtnTB.Content = "Leave chat";
+                    JoinDisconnectBtnTB.Content = "Disconnect";
                     JoinDisconnectBtnTB.Background = Brushes.OrangeRed;
                 }
                 catch (Exception ex)
@@ -78,7 +87,7 @@ namespace NetworkProgramming_ExamNew
                     MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
-            else if (JoinDisconnectBtnTB.Content.ToString() == "Leave chat")
+            else if (JoinDisconnectBtnTB.Content.ToString() == "Disconnect")
             {
                 SendMessage("<LEAVE>");
                 isListening = false;
@@ -86,7 +95,7 @@ namespace NetworkProgramming_ExamNew
                 MessagesListBox.Items.Clear();
                 dataBase.UpdateLeaveLogs(currentUserId, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
-                JoinDisconnectBtnTB.Content = "Join chat";
+                JoinDisconnectBtnTB.Content = "Connect";
                 JoinDisconnectBtnTB.Background = Brushes.LightGreen;
             }
         }
@@ -95,7 +104,7 @@ namespace NetworkProgramming_ExamNew
         {
             if (!isListening)
             {
-                MessageBox.Show("Join a chat first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Connect first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             else if (string.IsNullOrWhiteSpace(MessageTextBox.Text) || MessageTextBox.Text == "Enter your text here...")

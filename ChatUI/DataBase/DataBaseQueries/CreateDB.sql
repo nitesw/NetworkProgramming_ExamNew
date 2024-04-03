@@ -15,11 +15,23 @@ Id INT PRIMARY KEY NOT NULL IDENTITY(1, 1),
 );
 GO
 
+CREATE TABLE [Chats]
+(
+Id INT PRIMARY KEY NOT NULL IDENTITY(1, 1),
+[Name] NVARCHAR(128) NOT NULL,
+[CreationTime] DATETIME NOT NULL DEFAULT GETDATE(),
+[Messages] INT NOT NULL DEFAULT 0,
+[IsGroup] BIT NOT NULL DEFAULT 0
+);
+GO
+
 CREATE TABLE [Messages]
 (
 Id INT PRIMARY KEY NOT NULL IDENTITY(1, 1),
 [UserId] INT NOT NULL,
 FOREIGN KEY ([UserId]) REFERENCES [Users](Id),
+[ChatId] INT NOT NULL,
+FOREIGN KEY ([ChatId]) REFERENCES [Chats](Id),
 [SendTime] DATETIME NOT NULL DEFAULT GETDATE(),
 [Text] NVARCHAR(MAX) NOT NULL
 );
@@ -40,4 +52,9 @@ VALUES
 ('admin', 'admin123', 1),
 ('Bob', 'bobby331', 0),
 ('JakeBoss', 'qwerty000', 0)
+GO
+
+INSERT INTO [Chats] ([Name], [IsGroup])
+VALUES
+('General', 1)
 GO

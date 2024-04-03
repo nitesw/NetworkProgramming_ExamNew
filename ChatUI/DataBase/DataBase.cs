@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 
 namespace ChatUI.DataBase
@@ -249,6 +250,32 @@ namespace ChatUI.DataBase
                 {
                     CloseConnection();
                 }
+            }
+        }
+
+        public Dictionary<int, string> GetAllChats()
+        {
+            Dictionary<int, string> items = new Dictionary<int, string>();
+            string queryString = "SELECT * FROM Chats";
+            SqlDataAdapter adapter = new SqlDataAdapter(queryString, connection);
+            DataTable table = new DataTable();
+
+            adapter.Fill(table);
+
+            foreach (DataRow row in table.Rows)
+            {
+                int id = Convert.ToInt32(row["Id"]);
+                string name = row["Name"].ToString();
+                items.Add(id, name);
+            }
+
+            if (items.Count > 0)
+            {
+                return items;
+            }
+            else
+            {
+                return null;
             }
         }
     }

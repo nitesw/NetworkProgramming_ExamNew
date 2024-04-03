@@ -8,6 +8,7 @@
         Title="Chat" MinHeight="450" MaxHeight="450" MinWidth="800" MaxWidth="800">
     <Grid>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
             <ColumnDefinition Width="6*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -18,8 +19,8 @@
         </Grid.RowDefinitions>
         <TextBox x:Name="MessageTextBox"
                  Grid.Row="2"
-                 Grid.Column="0"
-                 Margin="5,5,0,5"
+                 Grid.Column="1"
+                 Margin="0,5,0,5"
                  Background="AliceBlue"
                  Foreground="DimGray"
                  Text="Enter your text here..."
@@ -28,7 +29,7 @@
                  LostKeyboardFocus="MessageTextBox_LostKeyboardFocus"/>
         <Button x:Name="SendMsgButton"
                 Grid.Row="2"
-                Grid.Column="1"
+                Grid.Column="2"
                 Margin="0,5,5,5"
                 Content="Send"
                 Background="LightGreen"
@@ -38,25 +39,17 @@
         <ToolBar x:Name="OptionsToolBar"
                  Grid.Row="0"
                  Grid.Column="0"
-                 Grid.ColumnSpan="4"
+                 Grid.ColumnSpan="3"
                  Margin="0,0,0,4"
                  Background="White">
             <Button x:Name="JoinDisconnectBtnTB"
                     Background="LightGreen"
                     Margin="1"
                     Padding="8"
-                    Content="Join chat"
+                    Content="Connect"
                     FontWeight="Bold"
                     BorderBrush="Black"
                     Click="JoinDisconnectBtnTB_Click"/>
-            <Separator/>
-            <Button x:Name="GroupsBtnTB"
-                    Background="Orange"
-                    Margin="1"
-                    Padding="8"
-                    Content="Groups"
-                    FontWeight="Bold"
-                    BorderBrush="Black"/>
             <Separator/>
             <Button x:Name="ExitBtnTB"
                     Background="OrangeRed"
@@ -80,10 +73,16 @@
                     BorderBrush="Black"
                     Margin="0,0,0,0"/>
         </ToolBar>
+        <ListBox x:Name="ChatsListBox"
+                 Grid.Row="1"
+                 Grid.RowSpan="2"
+                 Grid.Column="0"
+                 Margin="5,0,5,5"/>
         <ListBox x:Name="MessagesListBox"
                  Grid.Row="1"
-                 Grid.Column="0"
+                 Grid.Column="1"
                  Grid.ColumnSpan="2"
+                 Margin="0,0,5,0"
                  IsHitTestVisible="False"/>
     </Grid>
 </Window>
