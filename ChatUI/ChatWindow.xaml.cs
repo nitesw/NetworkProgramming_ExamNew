@@ -13,6 +13,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using ChatUI.DataBase;
+using System.Globalization;
 
 namespace NetworkProgramming_ExamNew
 {
@@ -21,6 +23,7 @@ namespace NetworkProgramming_ExamNew
     /// </summary>
     public partial class ChatWindow : Window
     {
+        private int currentUserId;
         private string remoteIP = "192.168.1.104";
         private short remotePort = 8080;
 
@@ -29,26 +32,40 @@ namespace NetworkProgramming_ExamNew
 
         private bool isListening = false;
 
-        public ChatWindow()
+        private DataBase dataBase { get; set; }
+
+        public ChatWindow(int userId)
         {
             InitializeComponent();
 
+            dataBase = new DataBase();
+            currentUserId = userId;
             remoteEndPoint = new IPEndPoint(IPAddress.Parse(remoteIP), remotePort);
         }
 
-
+        private async void Listen()
+        {
+            while (isListening)
+            {
+                var result = await client.ReceiveAsync();
+                string message = Encoding.Unicode.GetString(result.Buffer);
+                MessagesListBox.Items.Add(message);
+            }
+        }
         private void JoinDisconnectBtnTB_Click(object sender, RoutedEventArgs e)
         {
             if (JoinDisconnectBtnTB.Content.ToString() == "Join chat")
             {
                 try
                 {
-                    
+                    SendMessage("<JOIN>");
+                    isListening = true;
+                    Listen();
+
+                    dataBase.InsertLogs(currentUserId);
 
                     JoinDisconnectBtnTB.Content = "Leave chat";
                     JoinDisconnectBtnTB.Background = Brushes.OrangeRed;
-
-
                 }
                 catch (Exception ex)
                 {
@@ -57,11 +74,54 @@ namespace NetworkProgramming_ExamNew
             }
             else if (JoinDisconnectBtnTB.Content.ToString() == "Leave chat")
             {
-                client?.Close();
-                client = null;
+                SendMessage("<LEAVE>");
+                isListening = false;
+
+                dataBase.UpdateLeaveLogs(currentUserId, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
                 JoinDisconnectBtnTB.Content = "Join chat";
                 JoinDisconnectBtnTB.Background = Brushes.LightGreen;
+            }
+        }
+
+        private void SendMsgButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isListening)
+            {
+                MessageBox.Show("Join a chat first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            else if (string.IsNullOrWhiteSpace(MessageTextBox.Text) || MessageTextBox.Text == "Enter your text here...")
+            {
+                MessageBox.Show("Enter a message first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            SendMessage(MessageTextBox.Text);
+            MessageTextBox.Text = "";
+        }
+        private void SendMessage(string message)
+        {
+            byte[] bytes = Encoding.Unicode.GetBytes(message);
+            client.Send(bytes, bytes.Length, remoteEndPoint);
+        }
+
+        private void ExitBtnTB_Click(object sender, RoutedEventArgs e)
+        {
+            if (JoinDisconnectBtnTB.Content.ToString() == "Leave chat")
+            {
+                SendMessage("<LEAVE>");
+                isListening = false;
+
+                dataBase.UpdateLeaveLogs(currentUserId, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+
+                JoinDisconnectBtnTB.Content = "Join chat";
+                JoinDisconnectBtnTB.Background = Brushes.LightGreen;
+
+                this.Close();
+            }
+            else
+            {
+                this.Close();
             }
         }
 
@@ -85,22 +145,6 @@ namespace NetworkProgramming_ExamNew
             }
         }
 
-        private void ExitBtnTB_Click(object sender, RoutedEventArgs e)
-        {
-            if (JoinDisconnectBtnTB.Content.ToString() == "Leave chat")
-            {
-                client?.Close();
-                client = null;
-
-                JoinDisconnectBtnTB.Content = "Join chat";
-                JoinDisconnectBtnTB.Background = Brushes.LightGreen;
-
-                this.Close();
-            }
-            else
-            {
-                this.Close();
-            }
-        }
+        
     }
 }

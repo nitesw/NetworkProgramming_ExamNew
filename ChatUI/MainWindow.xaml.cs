@@ -1,4 +1,5 @@
 ﻿using ChatUI.DataBase;
+using System.Net;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -31,7 +32,7 @@ namespace NetworkProgramming_ExamNew
 
         private void RegisterButton_Click(object sender, RoutedEventArgs e)
         {
-            if (dataBase.IsUsernameExists(UsernameTextBox.Text))
+            if (dataBase.GetUserIdByUsername(UsernameTextBox.Text) != -1)
             {
                 MessageBox.Show("User with the same username is already exists!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -42,7 +43,7 @@ namespace NetworkProgramming_ExamNew
                     if(dataBase.InsertUser(UsernameTextBox.Text, PassPasswordBox.Password.ToString(), 1))
                     {
                         MessageBox.Show("Successfully registered!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                        ChatWindow chatWindow = new ChatWindow();
+                        ChatWindow chatWindow = new ChatWindow(dataBase.GetUserIdByUsername(UsernameTextBox.Text));
                         this.Hide();
                         chatWindow.ShowDialog();
                         this.Show();
@@ -57,7 +58,7 @@ namespace NetworkProgramming_ExamNew
                     if (dataBase.InsertUser(UsernameTextBox.Text, PassPasswordBox.Password.ToString(), 0))
                     {
                         MessageBox.Show("Successfully registered!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                        ChatWindow chatWindow = new ChatWindow();
+                        ChatWindow chatWindow = new ChatWindow(dataBase.GetUserIdByUsername(UsernameTextBox.Text));
                         this.Hide();
                         chatWindow.ShowDialog();
                         this.Show();
@@ -78,8 +79,7 @@ namespace NetworkProgramming_ExamNew
             }
             else
             {
-                MessageBox.Show("Successfully logged in!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                ChatWindow chatWindow = new ChatWindow();
+                ChatWindow chatWindow = new ChatWindow(dataBase.GetUserIdByUsername(UsernameTextBox.Text));
                 this.Hide();
                 chatWindow.ShowDialog();
                 this.Show();

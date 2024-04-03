@@ -32,7 +32,8 @@
                 Content="Send"
                 Background="LightGreen"
                 FontSize="20"
-                FontWeight="Bold"/>
+                FontWeight="Bold"
+                Click="SendMsgButton_Click"/>
         <ToolBar x:Name="OptionsToolBar"
                  Grid.Row="0"
                  Grid.Column="0"

@@ -31,7 +31,7 @@ namespace ChatServer
                     byte[] receivedData = server.Receive(ref clientEndPoint);
                     string message = Encoding.Unicode.GetString(receivedData);
 
-                    Console.WriteLine($"Got the {message} message");
+                    Console.WriteLine($"Got the {message} message from {clientEndPoint}");
                     switch (message)
                     {
                         case "<JOIN>":

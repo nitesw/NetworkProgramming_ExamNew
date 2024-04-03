@@ -50,7 +50,7 @@ namespace ChatUI.DataBase
             }
         }
 
-        public bool IsUsernameExists(string username)
+        public int GetUserIdByUsername(string username)
         {
             string queryString = $"SELECT Id, Username FROM Users WHERE Username = '{username}'";
             SqlDataAdapter adapter = new SqlDataAdapter();
@@ -62,7 +62,14 @@ namespace ChatUI.DataBase
                 adapter.Fill(table);
             }
 
-            return table.Rows.Count == 1;
+            if (table.Rows.Count == 1)
+            {
+                return (int)table.Rows[0]["Id"];
+            }
+            else
+            {
+                return -1;
+            }
         }
         public bool IsUserExists(string username, string password)
         {
@@ -79,6 +86,7 @@ namespace ChatUI.DataBase
 
             return table.Rows.Count == 1;
         }
+
         public bool InsertUser(string username, string password, byte isAdmin)
         {
             string queryString = $"INSERT INTO Users (Username, Password, IsAdmin) VALUES ('{username}', '{password}', {isAdmin})";
@@ -101,6 +109,48 @@ namespace ChatUI.DataBase
                 {
                     MessageBox.Show("Error: " + ex.Message);
                     return false;
+                }
+                finally
+                {
+                    CloseConnection();
+                }
+            }
+        }
+        public void InsertLogs(int userId)
+        {
+            string queryString = $"INSERT INTO Logs (UserId) VALUES ('{userId}')";
+
+            using (SqlCommand command = new SqlCommand(queryString, connection))
+            {
+                try
+                {
+                    OpenConnection();
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
+                }
+                finally
+                {
+                    CloseConnection();
+                }
+            }
+        }
+        public void UpdateLeaveLogs(int userId, string disconnectionTime)
+        {
+            string queryString = $"UPDATE Logs SET DisconnectionTime = '{disconnectionTime}' WHERE UserId = '{userId}'";
+
+            using (SqlCommand command = new SqlCommand(queryString, connection))
+            {
+                try
+                {
+                    OpenConnection();
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
                 }
                 finally
                 {
