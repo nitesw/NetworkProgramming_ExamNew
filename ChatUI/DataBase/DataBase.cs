@@ -231,9 +231,9 @@ namespace ChatUI.DataBase
             }
         }
 
-        public void InsertMessage(int userId, string text)
+        public void InsertMessage(int userId, int chatId, string text)
         {
-            string queryString = $"INSERT INTO Messages (UserId, Text) VALUES ('{userId}', '{text}')";
+            string queryString = $"INSERT INTO Messages (UserId, ChatId, Text) VALUES ('{userId}', '{chatId}', '{text}')";
 
             using (SqlCommand command = new SqlCommand(queryString, connection))
             {
@@ -277,6 +277,35 @@ namespace ChatUI.DataBase
             {
                 return null;
             }
+        }
+        public List<string> GetAllMessages(int chatId)
+        {
+            List<string> messages = new List<string>();
+            string queryString = $"SELECT * FROM Messages WHERE ChatId = '{chatId}'";
+            SqlDataAdapter adapter = new SqlDataAdapter(queryString, connection);
+            DataTable table = new DataTable();
+
+            adapter.Fill(table);
+
+            foreach (DataRow row in table.Rows)
+            {
+                string message = row["Text"].ToString();
+                messages.Add(message);
+            }
+
+            return messages;
+        }
+        public int GetIdOfTheLastMessageFromUser(int userId)
+        {
+            string queryString = $"SELECT * FROM Messages WHERE UserId = '{userId}' ORDER BY SendTime DESC";
+            SqlDataAdapter adapter = new SqlDataAdapter(queryString, connection);
+            DataTable table = new DataTable();
+
+            adapter.Fill(table);
+
+            int chatId = (int)table.Rows[0]["ChatId"];
+
+            return chatId;
         }
     }
 }

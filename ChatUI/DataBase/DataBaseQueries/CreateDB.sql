@@ -56,5 +56,7 @@ GO
 
 INSERT INTO [Chats] ([Name], [IsGroup])
 VALUES
-('General', 1)
+('General', 1),
+('Memes', 1),
+('News', 1)
 GO

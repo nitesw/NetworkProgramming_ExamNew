@@ -50,7 +50,7 @@ namespace NetworkProgramming_ExamNew
                 boxItem.Tag = item.Key;
                 boxItem.Content = item.Value;
 
-                ChatsListBox.Items.Add(boxItem);  
+                ChatsListBox.Items.Add(boxItem);
             }
         }
 
@@ -63,7 +63,17 @@ namespace NetworkProgramming_ExamNew
 
                 if (message.Contains(":"))
                 {
-                    MessagesListBox.Items.Add(message);
+                    string[] parts = message.Split(':');
+                    string username = parts[0].Trim();
+                    int userId = dataBase.GetUserIdByUsername(username);
+                    int chatId = dataBase.GetIdOfTheLastMessageFromUser(userId);
+
+                    ListBoxItem selectedItem = (ListBoxItem)ChatsListBox.SelectedItem;
+                    if ((int)selectedItem.Tag == chatId)
+                    {
+                        MessagesListBox.Items.Add(message);
+                    }
+                    
                 }
             }
         }
@@ -124,9 +134,27 @@ namespace NetworkProgramming_ExamNew
             }
             else
             {
-                byte[] bytes = Encoding.Unicode.GetBytes(dataBase.GetUsernameByUserId(currentUserId) + ": " + message);
-                client.Send(bytes, bytes.Length, remoteEndPoint);
-                dataBase.InsertMessage(currentUserId, message);
+                if (ChatsListBox.SelectedItem != null)
+                {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.Append(dataBase.GetUsernameByUserId(currentUserId));
+                    stringBuilder.Append(": ");
+                    stringBuilder.Append(message);
+
+                    message = stringBuilder.ToString();
+
+                    byte[] bytes = Encoding.Unicode.GetBytes(message);
+                    client.Send(bytes, bytes.Length, remoteEndPoint);
+
+                    ListBoxItem selectedItem = (ListBoxItem)ChatsListBox.SelectedItem;
+
+                    int tag = (int)selectedItem.Tag;
+                    dataBase.InsertMessage(currentUserId, tag, message);
+                }
+                else
+                {
+                    MessageBox.Show("Select chat first!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
@@ -177,6 +205,21 @@ namespace NetworkProgramming_ExamNew
                 e.Handled = true;
 
                 SendMsgButton_Click(sender, e);
+            }
+        }
+
+        private void ChatsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ChatsListBox.SelectedItem != null)
+            {
+                MessagesListBox.Items.Clear();
+                ListBoxItem selectedListBoxItem = (ListBoxItem)ChatsListBox.SelectedItem;
+                int chatId = (int)selectedListBoxItem.Tag;
+
+                foreach (var message in dataBase.GetAllMessages(chatId))
+                {
+                    MessagesListBox.Items.Add(message);
+                }
             }
         }
     }
