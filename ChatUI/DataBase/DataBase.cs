@@ -71,6 +71,27 @@ namespace ChatUI.DataBase
                 return -1;
             }
         }
+        public string GetUsernameByUserId(int userId)
+        {
+            string queryString = $"SELECT Id, Username FROM Users WHERE Id = '{userId}'";
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            DataTable table = new DataTable();
+
+            using (SqlCommand command = new SqlCommand(queryString, connection))
+            {
+                adapter.SelectCommand = command;
+                adapter.Fill(table);
+            }
+
+            if (table.Rows.Count == 1)
+            {
+                return (string)table.Rows[0]["Username"];
+            }
+            else
+            {
+                return "Error";
+            }
+        }
         public bool IsUserExists(string username, string password)
         {
             string queryString = $"SELECT Id, Username, Password FROM Users WHERE Username = '{username}' AND Password = '{password}'";
@@ -228,27 +249,6 @@ namespace ChatUI.DataBase
                 {
                     CloseConnection();
                 }
-            }
-        }
-        public bool MessageExists(string text)
-        {
-            string queryString = $"SELECT Id, Text FROM Users WHERE Text = '{text}'";
-            SqlDataAdapter adapter = new SqlDataAdapter();
-            DataTable table = new DataTable();
-
-            using (SqlCommand command = new SqlCommand(queryString, connection))
-            {
-                adapter.SelectCommand = command;
-                adapter.Fill(table);
-            }
-
-            if (table.Rows.Count == 1)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
             }
         }
     }

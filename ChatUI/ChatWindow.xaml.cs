@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using ChatUI.DataBase;
 using System.Globalization;
+using ChatServer;
 
 namespace NetworkProgramming_ExamNew
 {
@@ -41,6 +42,7 @@ namespace NetworkProgramming_ExamNew
             dataBase = new DataBase();
             currentUserId = userId;
             remoteEndPoint = new IPEndPoint(IPAddress.Parse(remoteIP), remotePort);
+            UsernameLabel.Content = dataBase.GetUsernameByUserId(userId);
         }
 
         private async void Listen()
@@ -49,10 +51,10 @@ namespace NetworkProgramming_ExamNew
             {
                 var result = await client.ReceiveAsync();
                 string message = Encoding.Unicode.GetString(result.Buffer);
-                MessagesListBox.Items.Add(message);
-                if (!dataBase.MessageExists(message))
+
+                if (message.Contains(":"))
                 {
-                    dataBase.InsertMessage(currentUserId, message);
+                    MessagesListBox.Items.Add(message);
                 }
             }
         }
@@ -81,6 +83,7 @@ namespace NetworkProgramming_ExamNew
                 SendMessage("<LEAVE>");
                 isListening = false;
 
+                MessagesListBox.Items.Clear();
                 dataBase.UpdateLeaveLogs(currentUserId, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
                 JoinDisconnectBtnTB.Content = "Join chat";
@@ -104,9 +107,18 @@ namespace NetworkProgramming_ExamNew
             MessageTextBox.Text = "";
         }
         private void SendMessage(string message)
-        {
-            byte[] bytes = Encoding.Unicode.GetBytes(message);
-            client.Send(bytes, bytes.Length, remoteEndPoint);
+        {   
+            if (message == "<JOIN>" || message == "<LEAVE>")
+            {
+                byte[] bytes = Encoding.Unicode.GetBytes(message);
+                client.Send(bytes, bytes.Length, remoteEndPoint);
+            }
+            else
+            {
+                byte[] bytes = Encoding.Unicode.GetBytes(dataBase.GetUsernameByUserId(currentUserId) + ": " + message);
+                client.Send(bytes, bytes.Length, remoteEndPoint);
+                dataBase.InsertMessage(currentUserId, message);
+            }
         }
 
         private void ExitBtnTB_Click(object sender, RoutedEventArgs e)
@@ -149,6 +161,14 @@ namespace NetworkProgramming_ExamNew
             }
         }
 
-        
+        private void MessageTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                e.Handled = true;
+
+                SendMsgButton_Click(sender, e);
+            }
+        }
     }
 }

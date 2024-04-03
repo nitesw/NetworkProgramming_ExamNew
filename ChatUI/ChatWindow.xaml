@@ -23,6 +23,7 @@
                  Background="AliceBlue"
                  Foreground="DimGray"
                  Text="Enter your text here..."
+                 KeyDown="MessageTextBox_KeyDown"
                  GotKeyboardFocus="MessageTextBox_GotKeyboardFocus"
                  LostKeyboardFocus="MessageTextBox_LostKeyboardFocus"/>
         <Button x:Name="SendMsgButton"
@@ -48,6 +49,7 @@
                     FontWeight="Bold"
                     BorderBrush="Black"
                     Click="JoinDisconnectBtnTB_Click"/>
+            <Separator/>
             <Button x:Name="GroupsBtnTB"
                     Background="Orange"
                     Margin="1"
@@ -55,18 +57,33 @@
                     Content="Groups"
                     FontWeight="Bold"
                     BorderBrush="Black"/>
+            <Separator/>
             <Button x:Name="ExitBtnTB"
                     Background="OrangeRed"
-                    Margin="1"
+                    Margin="1,1,15,1"
                     Padding="8"
                     Content="Exit"
                     FontWeight="Bold"
                     BorderBrush="Black"
                     Click="ExitBtnTB_Click"/>
+            <Label x:Name="CurrentLoginLabel"
+                    Content="Current login:"
+                    VerticalAlignment="Center"
+                    FontSize="20"
+                    FontWeight="Medium"
+                    BorderBrush="Black"/>
+            <Label x:Name="UsernameLabel"
+                    Content="Username"
+                    VerticalAlignment="Center"
+                    FontSize="18"
+                    FontWeight="Normal"
+                    BorderBrush="Black"
+                    Margin="0,0,0,0"/>
         </ToolBar>
         <ListBox x:Name="MessagesListBox"
                  Grid.Row="1"
                  Grid.Column="0"
-                 Grid.ColumnSpan="2"/>
+                 Grid.ColumnSpan="2"
+                 IsHitTestVisible="False"/>
     </Grid>
 </Window>
