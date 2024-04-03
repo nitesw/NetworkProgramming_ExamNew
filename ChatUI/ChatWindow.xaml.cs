@@ -50,6 +50,10 @@ namespace NetworkProgramming_ExamNew
                 var result = await client.ReceiveAsync();
                 string message = Encoding.Unicode.GetString(result.Buffer);
                 MessagesListBox.Items.Add(message);
+                if (!dataBase.MessageExists(message))
+                {
+                    dataBase.InsertMessage(currentUserId, message);
+                }
             }
         }
         private void JoinDisconnectBtnTB_Click(object sender, RoutedEventArgs e)
@@ -62,7 +66,7 @@ namespace NetworkProgramming_ExamNew
                     isListening = true;
                     Listen();
 
-                    dataBase.InsertLogs(currentUserId);
+                    dataBase.InsertLogs(currentUserId, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 
                     JoinDisconnectBtnTB.Content = "Leave chat";
                     JoinDisconnectBtnTB.Background = Brushes.OrangeRed;

@@ -116,16 +116,18 @@ namespace ChatUI.DataBase
                 }
             }
         }
-        public void InsertLogs(int userId)
+
+        private bool LogExists(int userId)
         {
-            string queryString = $"INSERT INTO Logs (UserId) VALUES ('{userId}')";
+            string queryString = $"SELECT COUNT(*) FROM Logs WHERE UserId = '{userId}'";
+            int count = 0;
 
             using (SqlCommand command = new SqlCommand(queryString, connection))
             {
                 try
                 {
                     OpenConnection();
-                    command.ExecuteNonQuery();
+                    count = (int)command.ExecuteScalar();
                 }
                 catch (Exception ex)
                 {
@@ -134,6 +136,54 @@ namespace ChatUI.DataBase
                 finally
                 {
                     CloseConnection();
+                }
+            }
+
+            return count > 0;
+        }
+        public void InsertLogs(int userId, string connectionTime)
+        {
+            if (!LogExists(userId))
+            {
+                string queryString = $"INSERT INTO Logs (UserId, ConnectionTime) VALUES ('{userId}', '{connectionTime}')";
+
+                using (SqlCommand command = new SqlCommand(queryString, connection))
+                {
+                    try
+                    {
+                        OpenConnection();
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error: " + ex.Message);
+                    }
+                    finally
+                    {
+                        CloseConnection();
+                    }
+                }
+            }
+            else
+            {
+                string queryString = $"UPDATE Logs SET ConnectionTime = '{connectionTime}', DisconnectionTime = NULL" +
+                    $" WHERE UserId = '{userId}'";
+
+                using (SqlCommand command = new SqlCommand(queryString, connection))
+                {
+                    try
+                    {
+                        OpenConnection();
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error: " + ex.Message);
+                    }
+                    finally
+                    {
+                        CloseConnection();
+                    }
                 }
             }
         }
@@ -156,6 +206,49 @@ namespace ChatUI.DataBase
                 {
                     CloseConnection();
                 }
+            }
+        }
+
+        public void InsertMessage(int userId, string text)
+        {
+            string queryString = $"INSERT INTO Messages (UserId, Text) VALUES ('{userId}', '{text}')";
+
+            using (SqlCommand command = new SqlCommand(queryString, connection))
+            {
+                try
+                {
+                    OpenConnection();
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
+                }
+                finally
+                {
+                    CloseConnection();
+                }
+            }
+        }
+        public bool MessageExists(string text)
+        {
+            string queryString = $"SELECT Id, Text FROM Users WHERE Text = '{text}'";
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            DataTable table = new DataTable();
+
+            using (SqlCommand command = new SqlCommand(queryString, connection))
+            {
+                adapter.SelectCommand = command;
+                adapter.Fill(table);
+            }
+
+            if (table.Rows.Count == 1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }
