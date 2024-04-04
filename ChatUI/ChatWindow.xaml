@@ -51,6 +51,15 @@
                     BorderBrush="Black"
                     Click="JoinDisconnectBtnTB_Click"/>
             <Separator/>
+            <Button x:Name="CreateGroupBtnTB"
+                    Background="LightBlue"
+                    Margin="1"
+                    Padding="8"
+                    Content="Create Chat"
+                    FontWeight="Bold"
+                    BorderBrush="Black"
+                    Click="JoinDisconnectBtnTB_Click"/>
+            <Separator/>
             <Button x:Name="ExitBtnTB"
                     Background="OrangeRed"
                     Margin="1,1,15,1"
@@ -73,17 +82,31 @@
                     BorderBrush="Black"
                     Margin="0,0,0,0"/>
         </ToolBar>
-        <ListBox x:Name="ChatsListBox"
-                 Grid.Row="1"
-                 Grid.RowSpan="2"
-                 Grid.Column="0"
-                 Margin="5,0,5,5"
-                 SelectionChanged="ChatsListBox_SelectionChanged"/>
-        <ListBox x:Name="MessagesListBox"
-                 Grid.Row="1"
-                 Grid.Column="1"
-                 Grid.ColumnSpan="2"
-                 Margin="0,0,5,0"
-                 IsHitTestVisible="False"/>
+        <ScrollViewer x:Name="ScrollViewerMessagesLB"
+                      VerticalScrollBarVisibility="Auto"
+                      Grid.Row="1"
+                      Grid.Column="1"
+                      Grid.ColumnSpan="2">
+            <ListBox x:Name="MessagesListBox"
+                     Grid.Row="1"
+                     Grid.Column="1"
+                     Grid.ColumnSpan="2"
+                     Margin="0,0,5,0"
+                     IsHitTestVisible="False"/>
+        </ScrollViewer>
+        <ScrollViewer x:Name="ScrollViewerChatsLB"
+                      VerticalScrollBarVisibility="Auto"
+                      Grid.Row="1"
+                      Grid.RowSpan="2"
+                      Grid.Column="0">
+            <ListBox x:Name="ChatsListBox"
+                     Grid.Row="1"
+                     Grid.RowSpan="2"
+                     Grid.Column="0"
+                     Margin="5,0,5,5"
+                     SelectionChanged="ChatsListBox_SelectionChanged"/>
+        </ScrollViewer>
+        
+        
     </Grid>
 </Window>

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ChatUI.DataBase
 {
@@ -53,12 +54,14 @@ namespace ChatUI.DataBase
 
         public int GetUserIdByUsername(string username)
         {
-            string queryString = $"SELECT Id, Username FROM Users WHERE Username = '{username}'";
+            string queryString = $"SELECT Id, Username FROM Users WHERE Username = @Username";
             SqlDataAdapter adapter = new SqlDataAdapter();
             DataTable table = new DataTable();
 
             using (SqlCommand command = new SqlCommand(queryString, connection))
             {
+                command.Parameters.AddWithValue("@Username", username);
+
                 adapter.SelectCommand = command;
                 adapter.Fill(table);
             }
@@ -95,13 +98,16 @@ namespace ChatUI.DataBase
         }
         public bool IsUserExists(string username, string password)
         {
-            string queryString = $"SELECT Id, Username, Password FROM Users WHERE Username = '{username}' AND Password = '{password}'";
+            string queryString = $"SELECT Id, Username, Password FROM Users WHERE Username = @Username AND Password = @Password";
 
             SqlDataAdapter adapter = new SqlDataAdapter();
             DataTable table = new DataTable();
 
             using (SqlCommand command = new SqlCommand(queryString, connection))
             {
+                command.Parameters.AddWithValue("@Username", username);
+                command.Parameters.AddWithValue("@Password", password);
+
                 adapter.SelectCommand = command;
                 adapter.Fill(table);
             }
@@ -111,10 +117,13 @@ namespace ChatUI.DataBase
 
         public bool InsertUser(string username, string password, byte isAdmin)
         {
-            string queryString = $"INSERT INTO Users (Username, Password, IsAdmin) VALUES ('{username}', '{password}', {isAdmin})";
+            string queryString = $"INSERT INTO Users (Username, Password, IsAdmin) VALUES (@Username, @Password, {isAdmin})";
             
             using (SqlCommand command = new SqlCommand(queryString, connection))
             {
+                command.Parameters.AddWithValue("@Username", username);
+                command.Parameters.AddWithValue("@Password", password);
+
                 try
                 {
                     OpenConnection();
@@ -233,10 +242,14 @@ namespace ChatUI.DataBase
 
         public void InsertMessage(int userId, int chatId, string text)
         {
-            string queryString = $"INSERT INTO Messages (UserId, ChatId, Text) VALUES ('{userId}', '{chatId}', '{text}')";
+            string queryString = "INSERT INTO Messages (UserId, ChatId, Text) VALUES (@UserId, @ChatId, @Text)";
 
             using (SqlCommand command = new SqlCommand(queryString, connection))
             {
+                command.Parameters.AddWithValue("@UserId", userId);
+                command.Parameters.AddWithValue("@ChatId", chatId);
+                command.Parameters.AddWithValue("@Text", text);
+
                 try
                 {
                     OpenConnection();
@@ -306,6 +319,30 @@ namespace ChatUI.DataBase
             int chatId = (int)table.Rows[0]["ChatId"];
 
             return chatId;
+        }
+
+        public void InsertGroup(string name)
+        {
+            string queryString = $"INSERT INTO Chats ([Name]) VALUES (@Name)";
+
+            using (SqlCommand command = new SqlCommand(queryString, connection))
+            {
+                command.Parameters.AddWithValue("@Name", name);
+
+                try
+                {
+                    OpenConnection();
+                    command.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error: " + ex.Message);
+                }
+                finally
+                {
+                    CloseConnection();
+                }
+            }
         }
     }
 }
