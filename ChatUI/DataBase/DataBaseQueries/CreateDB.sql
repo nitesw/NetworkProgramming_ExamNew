@@ -10,7 +10,6 @@ Id INT PRIMARY KEY NOT NULL IDENTITY(1, 1),
 [Username] NVARCHAR(128) NOT NULL UNIQUE CHECK([Username] <> ''),
 [Password] NVARCHAR(64) NOT NULL CHECK([Password] <> ''),
 [AccountCreationTime] DATETIME NOT NULL DEFAULT GETDATE(),
-[CountMessages] INT NOT NULL DEFAULT 0,
 [IsAdmin] BIT NOT NULL DEFAULT 0
 );
 GO
@@ -20,8 +19,6 @@ CREATE TABLE [Chats]
 Id INT PRIMARY KEY NOT NULL IDENTITY(1, 1),
 [Name] NVARCHAR(128) NOT NULL,
 [CreationTime] DATETIME NOT NULL DEFAULT GETDATE(),
-[Messages] INT NOT NULL DEFAULT 0,
-[IsGroup] BIT NOT NULL DEFAULT 0
 );
 GO
 
@@ -54,9 +51,9 @@ VALUES
 ('JakeBoss', 'qwerty000', 0)
 GO
 
-INSERT INTO [Chats] ([Name], [IsGroup])
+INSERT INTO [Chats] ([Name])
 VALUES
-('General', 1),
-('Memes', 1),
-('News', 1)
+('General'),
+('Memes'),
+('News')
 GO

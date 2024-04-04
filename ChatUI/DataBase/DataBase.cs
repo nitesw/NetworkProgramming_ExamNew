@@ -321,7 +321,7 @@ namespace ChatUI.DataBase
             return chatId;
         }
 
-        public void InsertGroup(string name)
+        public void InsertChat(string name)
         {
             string queryString = $"INSERT INTO Chats ([Name]) VALUES (@Name)";
 
@@ -343,6 +343,23 @@ namespace ChatUI.DataBase
                     CloseConnection();
                 }
             }
+        }
+        public bool IsChatExists(string name)
+        {
+            string queryString = $"SELECT Id, Name FROM Chats WHERE Name = @Name";
+
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            DataTable table = new DataTable();
+
+            using (SqlCommand command = new SqlCommand(queryString, connection))
+            {
+                command.Parameters.AddWithValue("@Name", name);
+
+                adapter.SelectCommand = command;
+                adapter.Fill(table);
+            }
+
+            return table.Rows.Count == 1;
         }
     }
 }

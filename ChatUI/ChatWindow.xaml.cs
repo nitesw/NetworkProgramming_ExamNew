@@ -16,6 +16,7 @@ using System.Windows.Shapes;
 using ChatUI.DataBase;
 using System.Globalization;
 using ChatServer;
+using ChatUI;
 
 namespace NetworkProgramming_ExamNew
 {
@@ -63,7 +64,11 @@ namespace NetworkProgramming_ExamNew
                 var result = await client.ReceiveAsync();
                 string message = Encoding.Unicode.GetString(result.Buffer);
 
-                if (message.Contains(":"))
+                if (message.StartsWith("<NEW_CHAT>"))
+                {
+                    RefreshChatList();
+                }
+                else if (message.Contains(":"))
                 {
                     string[] parts = message.Split(':');
                     string username = parts[0].Trim();
@@ -129,7 +134,7 @@ namespace NetworkProgramming_ExamNew
         }
         private void SendMessage(string message)
         {   
-            if (message == "<JOIN>" || message == "<LEAVE>")
+            if (message == "<JOIN>" || message == "<LEAVE>" || message == "<NEW_CHAT>")
             {
                 byte[] bytes = Encoding.Unicode.GetBytes(message);
                 client.Send(bytes, bytes.Length, remoteEndPoint);
@@ -162,7 +167,7 @@ namespace NetworkProgramming_ExamNew
 
         private void ExitBtnTB_Click(object sender, RoutedEventArgs e)
         {
-            if (JoinDisconnectBtnTB.Content.ToString() == "Leave chat")
+            if (JoinDisconnectBtnTB.Content.ToString() == "Disconnect")
             {
                 SendMessage("<LEAVE>");
                 isListening = false;
@@ -222,6 +227,35 @@ namespace NetworkProgramming_ExamNew
                 {
                     MessagesListBox.Items.Add(message);
                 }
+            }
+        }
+
+        public void RefreshChatList()
+        {
+            ChatsListBox.Items.Clear();
+            foreach (var item in dataBase.GetAllChats())
+            {
+                ListBoxItem boxItem = new ListBoxItem();
+                boxItem.Tag = item.Key;
+                boxItem.Content = item.Value;
+
+                ChatsListBox.Items.Add(boxItem);
+            }
+            ChatsListBox.SelectedIndex = 0;
+        }
+        private void CreateChatBtnTB_Click(object sender, RoutedEventArgs e)
+        {
+            if (isListening)
+            {
+                CreateChatWindow createChatWindow = new CreateChatWindow();
+                createChatWindow.ShowDialog();
+
+                SendMessage("<NEW_CHAT>");
+            }
+            else
+            {
+                MessageBox.Show("Connect first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
         }
     }

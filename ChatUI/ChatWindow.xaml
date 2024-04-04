@@ -51,14 +51,14 @@
                     BorderBrush="Black"
                     Click="JoinDisconnectBtnTB_Click"/>
             <Separator/>
-            <Button x:Name="CreateGroupBtnTB"
+            <Button x:Name="CreateChatBtnTB"
                     Background="LightBlue"
                     Margin="1"
                     Padding="8"
                     Content="Create Chat"
                     FontWeight="Bold"
                     BorderBrush="Black"
-                    Click="JoinDisconnectBtnTB_Click"/>
+                    Click="CreateChatBtnTB_Click"/>
             <Separator/>
             <Button x:Name="ExitBtnTB"
                     Background="OrangeRed"

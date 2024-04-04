@@ -1,12 +1,53 @@
-﻿<Window x:Class="ChatUI.CreateChatWindow"
+﻿<Window x:Class="NetworkProgramming_ExamNew.CreateChatWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ChatUI"
+        xmlns:local="clr-namespace:NetworkProgramming_ExamNew"
         mc:Ignorable="d"
-        Title="Create New Chat" MinHeight="225" MaxHeight="225" MinWidth="475" MaxWidth="475">
+            Title="Create Chat Window" MinHeight="175" MaxHeight="175" MinWidth="475" MaxWidth="475">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1.5*"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Label x:Name="ChatNameLabel"
+        Grid.Column="0"
+        Grid.Row="0"
+        VerticalAlignment="Center"
+        Content="Chat name:"
+        FontSize="18"
+        FontWeight="Medium"/>
+        <TextBox x:Name="ChatNameTextBox"
+          Grid.Row="0"
+          Grid.Column="1"
+          Grid.ColumnSpan="3"
+          Margin="0,35,12,30"/>
+        <Button x:Name="CreateBtn"
+         Grid.Row="2"
+         Grid.Column="0"
+         Grid.ColumnSpan="2"
+         Margin="12"
+         Content="Create"
+         FontSize="16"
+         FontWeight="Medium"
+         Background="LightGreen"
+         Click="CreateBtn_Click"/>
+        <Button x:Name="CancelBtn"
+         Grid.Row="2"
+         Grid.Column="2"
+         Grid.ColumnSpan="2"
+         Margin="12"
+         Content="Cancel"
+         FontSize="16"
+         FontWeight="Medium"
+         Background="OrangeRed"
+         Click="CancelBtn_Click"/>
     </Grid>
 </Window>
