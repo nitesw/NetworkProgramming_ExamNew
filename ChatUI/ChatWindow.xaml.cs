@@ -52,6 +52,8 @@ namespace NetworkProgramming_ExamNew
 
                 ChatsListBox.Items.Add(boxItem);
             }
+
+            ChatsListBox.SelectedIndex = 0;
         }
 
         private async void Listen()
