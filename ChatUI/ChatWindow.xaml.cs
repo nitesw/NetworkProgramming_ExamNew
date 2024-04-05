@@ -64,7 +64,7 @@ namespace NetworkProgramming_ExamNew
                 var result = await client.ReceiveAsync();
                 string message = Encoding.Unicode.GetString(result.Buffer);
 
-                if (message.StartsWith("<NEW_CHAT>"))
+                if (message.StartsWith("<NEW_CHAT>") || message.StartsWith("<DELETE_CHAT>"))
                 {
                     RefreshChatList();
                 }
