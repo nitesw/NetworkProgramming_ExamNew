@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChatUI.DataBase;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -13,17 +14,13 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using ChatUI.DataBase;
-using System.Globalization;
-using ChatServer;
-using ChatUI;
 
 namespace NetworkProgramming_ExamNew
 {
     /// <summary>
-    /// Interaction logic for ChatWindow.xaml
+    /// Interaction logic for AdminChatWindow.xaml
     /// </summary>
-    public partial class ChatWindow : Window
+    public partial class AdminChatWindow : Window
     {
         private int currentUserId;
         private string remoteIP = "192.168.1.104";
@@ -36,7 +33,7 @@ namespace NetworkProgramming_ExamNew
 
         private DataBase dataBase { get; set; }
 
-        public ChatWindow(int userId)
+        public AdminChatWindow(int userId)
         {
             InitializeComponent();
 
@@ -64,7 +61,7 @@ namespace NetworkProgramming_ExamNew
                 var result = await client.ReceiveAsync();
                 string message = Encoding.Unicode.GetString(result.Buffer);
 
-                if (message.StartsWith("<NEW_CHAT>"))
+                if (message.StartsWith("<NEW_CHAT>") || message.StartsWith("<DELETE_CHAT>"))
                 {
                     RefreshChatList();
                 }
@@ -80,7 +77,7 @@ namespace NetworkProgramming_ExamNew
                     {
                         MessagesListBox.Items.Add(message);
                     }
-                    
+
                 }
             }
         }
@@ -133,8 +130,8 @@ namespace NetworkProgramming_ExamNew
             MessageTextBox.Text = "";
         }
         private void SendMessage(string message)
-        {   
-            if (message == "<JOIN>" || message == "<LEAVE>" || message == "<NEW_CHAT>")
+        {
+            if (message == "<JOIN>" || message == "<LEAVE>" || message == "<NEW_CHAT>" || message == "<DELETE_CHAT>")
             {
                 byte[] bytes = Encoding.Unicode.GetBytes(message);
                 client.Send(bytes, bytes.Length, remoteEndPoint);
@@ -205,6 +202,26 @@ namespace NetworkProgramming_ExamNew
             }
         }
 
+        private void SearchTextBar_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            TextBox textBox = (TextBox)sender;
+            if (textBox.Foreground == Brushes.DimGray)
+            {
+                textBox.Text = "";
+                textBox.Foreground = Brushes.Black;
+            }
+        }
+
+        private void SearchTextBar_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            TextBox textBox = (TextBox)sender;
+            if (string.IsNullOrWhiteSpace(textBox.Text))
+            {
+                textBox.Text = "Enter username here...";
+                textBox.Foreground = Brushes.DimGray;
+            }
+        }
+
         private void MessageTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -251,6 +268,154 @@ namespace NetworkProgramming_ExamNew
                 createChatWindow.ShowDialog();
 
                 SendMessage("<NEW_CHAT>");
+            }
+            else
+            {
+                MessageBox.Show("Connect first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+        }
+
+        private void GetAllMsgsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (isListening)
+            {
+                AdminShowListBox.Items.Clear();
+                foreach (var message in dataBase.GetAllMessages())
+                {
+                    AdminShowListBox.Items.Add(message);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Connect first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+        }
+
+        private void GetAllUsersBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (isListening)
+            {
+                AdminShowListBox.Items.Clear();
+                foreach (var user in dataBase.GetAllUsers())
+                {
+                    AdminShowListBox.Items.Add(user);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Connect first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }      
+        }
+
+        private void GetAllLogsBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (isListening)
+            {
+                AdminShowListBox.Items.Clear();
+                foreach (var log in dataBase.GetAllLogs())
+                {
+                    AdminShowListBox.Items.Add(log);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Connect first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+        }
+
+        private void GetUserMsgBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (isListening)
+            {
+                if (!string.IsNullOrWhiteSpace(SearchTextBar.Text) || SearchTextBar.Text != "Enter username here...")
+                {
+                    if (dataBase.IsUsernameExists(SearchTextBar.Text))
+                    {
+                        AdminShowListBox.Items.Clear();
+                        foreach (var message in dataBase.GetAllMessagesByUserId(dataBase.GetUserIdByUsername(SearchTextBar.Text)))
+                        {
+                            AdminShowListBox.Items.Add(message);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("User with this username does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Enter username first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Connect first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+        }
+
+        private void MakeUserAdminBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (isListening)
+            {
+                if (!string.IsNullOrWhiteSpace(SearchTextBar.Text) || SearchTextBar.Text != "Enter username here...")
+                {
+                    if (dataBase.IsUsernameExists(SearchTextBar.Text))
+                    {
+                        if(dataBase.UpdateUserAdminRightsByUserId(dataBase.GetUserIdByUsername(SearchTextBar.Text)))
+                        {
+                            MessageBox.Show($"Success! User {SearchTextBar.Text} is now admin!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                            SearchTextBar.Text = "";
+                        }
+                        else
+                        {
+                            MessageBox.Show($"Success! User {SearchTextBar.Text} is now default user!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+                            SearchTextBar.Text = "";
+                        }
+                    }
+                    else
+                    {
+                        SearchTextBar.Text = "";
+                        MessageBox.Show("User with this username does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Enter username first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+            else
+            {
+                MessageBox.Show("Connect first!", "Attention", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+        }
+
+        private void DeleteChatBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (isListening)
+            {
+                if (ChatsListBox.SelectedIndex != null)
+                {
+                    ListBoxItem selectedListBoxItem = (ListBoxItem)ChatsListBox.SelectedItem;
+                    int chatId = (int)selectedListBoxItem.Tag;
+
+                    dataBase.DeleteChat(chatId);
+                    SendMessage("<DELETE_CHAT>");
+                }
+                else
+                {
+                    MessageBox.Show("Select chat first!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                }
             }
             else
             {

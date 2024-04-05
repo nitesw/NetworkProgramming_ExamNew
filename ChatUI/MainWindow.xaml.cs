@@ -43,7 +43,7 @@ namespace NetworkProgramming_ExamNew
                     if(dataBase.InsertUser(UsernameTextBox.Text, PassPasswordBox.Password.ToString(), 1))
                     {
                         MessageBox.Show("Successfully registered!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
-                        ChatWindow chatWindow = new ChatWindow(dataBase.GetUserIdByUsername(UsernameTextBox.Text));
+                        AdminChatWindow chatWindow = new AdminChatWindow(dataBase.GetUserIdByUsername(UsernameTextBox.Text));
                         this.Hide();
                         chatWindow.ShowDialog();
                         this.Show();
@@ -79,10 +79,21 @@ namespace NetworkProgramming_ExamNew
             }
             else
             {
-                ChatWindow chatWindow = new ChatWindow(dataBase.GetUserIdByUsername(UsernameTextBox.Text));
-                this.Hide();
-                chatWindow.ShowDialog();
-                this.Show();
+                if (dataBase.IsUserAdmin(dataBase.GetUserIdByUsername(UsernameTextBox.Text)))
+                {
+                    AdminChatWindow chatWindow = new AdminChatWindow(dataBase.GetUserIdByUsername(UsernameTextBox.Text));
+                    this.Hide();
+                    chatWindow.ShowDialog();
+                    this.Show();
+                }
+                else
+                {
+                    ChatWindow chatWindow = new ChatWindow(dataBase.GetUserIdByUsername(UsernameTextBox.Text));
+                    this.Hide();
+                    chatWindow.ShowDialog();
+                    this.Show();
+                }
+                
             }
         }
     }

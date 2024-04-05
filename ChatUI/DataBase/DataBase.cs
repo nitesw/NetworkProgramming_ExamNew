@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace ChatUI.DataBase
@@ -52,6 +53,31 @@ namespace ChatUI.DataBase
             }
         }
 
+        public List<string> GetAllUsers()
+        {
+            List<string> users = new List<string>();
+            string queryString = $"SELECT * FROM Users";
+            SqlDataAdapter adapter = new SqlDataAdapter(queryString, connection);
+            DataTable table = new DataTable();
+
+            adapter.Fill(table);
+
+            foreach (DataRow row in table.Rows)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine("UserId: " + row["Id"]);
+                stringBuilder.AppendLine("Username: " + row["Username"]);
+                stringBuilder.AppendLine("Password: " + row["Password"]);
+                stringBuilder.AppendLine("AccountCreationTime: " + row["AccountCreationTime"]);
+                stringBuilder.AppendLine("IsAdmin: " + row["IsAdmin"]);
+                stringBuilder.Append("-------------------------------");
+
+                string user = stringBuilder.ToString();
+                users.Add(user);
+            }
+
+            return users;
+        }
         public int GetUserIdByUsername(string username)
         {
             string queryString = $"SELECT Id, Username FROM Users WHERE Username = @Username";
@@ -114,7 +140,51 @@ namespace ChatUI.DataBase
 
             return table.Rows.Count == 1;
         }
+        public bool IsUsernameExists(string username)
+        {
+            string queryString = $"SELECT Id, Username FROM Users WHERE Username = @Username";
 
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            DataTable table = new DataTable();
+
+            using (SqlCommand command = new SqlCommand(queryString, connection))
+            {
+                command.Parameters.AddWithValue("@Username", username);
+
+                adapter.SelectCommand = command;
+                adapter.Fill(table);
+            }
+
+            return table.Rows.Count == 1;
+        }
+        public bool IsUserAdmin(int userId)
+        {
+            string queryString = $"SELECT Id, IsAdmin FROM Users WHERE Id = '{userId}'";
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            DataTable table = new DataTable();
+
+            using (SqlCommand command = new SqlCommand(queryString, connection))
+            {
+                adapter.SelectCommand = command;
+                adapter.Fill(table);
+            }
+
+            if (table.Rows.Count == 1)
+            {
+                if((bool)table.Rows[0]["IsAdmin"] == true)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
         public bool InsertUser(string username, string password, byte isAdmin)
         {
             string queryString = $"INSERT INTO Users (Username, Password, IsAdmin) VALUES (@Username, @Password, {isAdmin})";
@@ -147,7 +217,78 @@ namespace ChatUI.DataBase
                 }
             }
         }
+        public bool UpdateUserAdminRightsByUserId(int userId)
+        {
+            if (!IsUserAdmin(userId))
+            {
+                string queryString = $"UPDATE Users SET IsAdmin = 1 WHERE Id = '{userId}'";
 
+                using (SqlCommand command = new SqlCommand(queryString, connection))
+                {
+                    try
+                    {
+                        OpenConnection();
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error: " + ex.Message);
+                    }
+                    finally
+                    {
+                        CloseConnection();
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                string queryString = $"UPDATE Users SET IsAdmin = 0 WHERE Id = '{userId}'";
+
+                using (SqlCommand command = new SqlCommand(queryString, connection))
+                {
+                    try
+                    {
+                        OpenConnection();
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Error: " + ex.Message);
+                    }
+                    finally
+                    {
+                        CloseConnection();
+                    }
+                }
+                return false;
+            }
+        }
+
+        public List<string> GetAllLogs()
+        {
+            List<string> logs = new List<string>();
+            string queryString = $"SELECT * FROM Logs";
+            SqlDataAdapter adapter = new SqlDataAdapter(queryString, connection);
+            DataTable table = new DataTable();
+
+            adapter.Fill(table);
+
+            foreach (DataRow row in table.Rows)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine("LogId: " + row["Id"]);
+                stringBuilder.AppendLine("Username: " + GetUsernameByUserId((int)row["UserId"]));
+                stringBuilder.AppendLine("ConnectionTime: " + row["ConnectionTime"]);
+                stringBuilder.AppendLine("DisconnectionTime: " + row["DisconnectionTime"]);
+                stringBuilder.Append("-------------------------------");
+
+                string log = stringBuilder.ToString();
+                logs.Add(log);
+            }
+
+            return logs;
+        }
         private bool LogExists(int userId)
         {
             string queryString = $"SELECT COUNT(*) FROM Logs WHERE UserId = '{userId}'";
@@ -266,10 +407,10 @@ namespace ChatUI.DataBase
             }
         }
 
-        public Dictionary<int, string> GetAllChats()
+        public List<string> GetAllMessages()
         {
-            Dictionary<int, string> items = new Dictionary<int, string>();
-            string queryString = "SELECT * FROM Chats";
+            List<string> messages = new List<string>();
+            string queryString = $"SELECT * FROM Messages";
             SqlDataAdapter adapter = new SqlDataAdapter(queryString, connection);
             DataTable table = new DataTable();
 
@@ -277,21 +418,21 @@ namespace ChatUI.DataBase
 
             foreach (DataRow row in table.Rows)
             {
-                int id = Convert.ToInt32(row["Id"]);
-                string name = row["Name"].ToString();
-                items.Add(id, name);
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine("MsgId: " + row["Id"]);
+                stringBuilder.AppendLine("Username: " + GetUsernameByUserId((int)row["UserId"]));
+                stringBuilder.AppendLine("ChatId: " + row["ChatId"]);
+                stringBuilder.AppendLine("SendTime: " + row["SendTime"]);
+                stringBuilder.AppendLine("MsgText: " + row["Text"]);
+                stringBuilder.Append("-------------------------------");
+
+                string message = stringBuilder.ToString();
+                messages.Add(message);
             }
 
-            if (items.Count > 0)
-            {
-                return items;
-            }
-            else
-            {
-                return null;
-            }
+            return messages;
         }
-        public List<string> GetAllMessages(int chatId)
+        public List<string> GetAllMessagesByChatId(int chatId)
         {
             List<string> messages = new List<string>();
             string queryString = $"SELECT * FROM Messages WHERE ChatId = '{chatId}'";
@@ -303,6 +444,31 @@ namespace ChatUI.DataBase
             foreach (DataRow row in table.Rows)
             {
                 string message = row["Text"].ToString();
+                messages.Add(message);
+            }
+
+            return messages;
+        }
+        public List<string> GetAllMessagesByUserId(int userId)
+        {
+            List<string> messages = new List<string>();
+            string queryString = $"SELECT * FROM Messages WHERE UserId = '{userId}'";
+            SqlDataAdapter adapter = new SqlDataAdapter(queryString, connection);
+            DataTable table = new DataTable();
+
+            adapter.Fill(table);
+
+            foreach (DataRow row in table.Rows)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine("MsgId: " + row["Id"]);
+                stringBuilder.AppendLine("Username: " + GetUsernameByUserId((int)row["UserId"]));
+                stringBuilder.AppendLine("ChatId: " + row["ChatId"]);
+                stringBuilder.AppendLine("SendTime: " + row["SendTime"]);
+                stringBuilder.AppendLine("MsgText: " + row["Text"]);
+                stringBuilder.Append("-------------------------------");
+
+                string message = stringBuilder.ToString();
                 messages.Add(message);
             }
 
@@ -321,6 +487,31 @@ namespace ChatUI.DataBase
             return chatId;
         }
 
+        public Dictionary<int, string> GetAllChats()
+        {
+            Dictionary<int, string> items = new Dictionary<int, string>();
+            string queryString = "SELECT * FROM Chats";
+            SqlDataAdapter adapter = new SqlDataAdapter(queryString, connection);
+            DataTable table = new DataTable();
+
+            adapter.Fill(table);
+
+            foreach (DataRow row in table.Rows)
+            {
+                int id = Convert.ToInt32(row["Id"]);
+                string name = id + " - " + row["Name"].ToString();
+                items.Add(id, name);
+            }
+
+            if (items.Count > 0)
+            {
+                return items;
+            }
+            else
+            {
+                return null;
+            }
+        }
         public void InsertChat(string name)
         {
             string queryString = $"INSERT INTO Chats ([Name]) VALUES (@Name)";
@@ -337,6 +528,47 @@ namespace ChatUI.DataBase
                 catch (Exception ex)
                 {
                     MessageBox.Show("Error: " + ex.Message);
+                }
+                finally
+                {
+                    CloseConnection();
+                }
+            }
+        }
+        public void DeleteChat(int chatId)
+        {
+            string deleteMessagesQuery = $"DELETE FROM Messages WHERE ChatId = '{chatId}'";
+
+            using (SqlCommand deleteMessagesCommand = new SqlCommand(deleteMessagesQuery, connection))
+            {
+                try
+                {
+                    OpenConnection();
+                    deleteMessagesCommand.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error deleting messages: " + ex.Message);
+                    return;
+                }
+                finally
+                {
+                    CloseConnection();
+                }
+            }
+
+            string deleteChatQuery = $"DELETE FROM Chats WHERE Id = '{chatId}'";
+
+            using (SqlCommand deleteChatCommand = new SqlCommand(deleteChatQuery, connection))
+            {
+                try
+                {
+                    OpenConnection();
+                    deleteChatCommand.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error deleting chat: " + ex.Message);
                 }
                 finally
                 {
